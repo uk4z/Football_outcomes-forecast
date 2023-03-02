@@ -2,7 +2,7 @@ from league import *
 from club import Club
 
 #ligue 1
-ligue_1 =League('ligue-1','FR1',2022,9,20,'Ligue_1')
+ligue_1 =League('ligue-1','FR1',2022,20,'Ligue_1')
 
 Ajaccio = Club('AC Ajaccio', ligue_1)
 Angers = Club('Angers SCO', ligue_1)
@@ -27,7 +27,7 @@ Troyes = Club('ESTAC Troyes', ligue_1)
 
 
 #premier league
-premier_league = League('premier-league','GB1',2022,6,20,'EPL')
+premier_league = League('premier-league','GB1',2022,20,'EPL')
 
 Arsenal = Club('Arsenal FC',premier_league)
 Tottenham = Club('Tottenham Hotspur',premier_league)
@@ -52,7 +52,7 @@ Nottingham = Club('Nottingham Forest',premier_league)
 
 
 #primera division
-primera_division = League('primera-division','ES1',2022,7,20,'La_liga')
+primera_division = League('primera-division','ES1',2022,20,'La_liga')
 
 Almeria = Club('UD Almería',primera_division)
 Athletico_Bilbao = Club('Athletic Bilbao',primera_division)
@@ -76,7 +76,7 @@ Villareal = Club('Villarreal CF',primera_division)
 Sevilla = Club('Sevilla FC',primera_division)
 
 #serie A
-serie_a = League('serie-a','IT1',2022,8,20,'Serie_A')
+serie_a = League('serie-a','IT1',2022,20,'Serie_A')
 
 Atalanta = Club('Atalanta BC',serie_a)
 Bologna = Club('Bologna FC 1909',serie_a)
@@ -101,7 +101,7 @@ Udinese = Club('Udinese Calcio',serie_a)
 
 
 #bundesliga
-bundesliga = League('bundesliga','L1',2022,9,18,'Bundesliga')
+bundesliga = League('bundesliga','L1',2022,18,'Bundesliga')
 
 Ausbourg = Club('FC Augsburg',bundesliga)
 Bayer_Lerverkusen = Club('Bayer 04 Leverkusen',bundesliga)
