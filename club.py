@@ -19,13 +19,16 @@ class Club :
         Returns:
             list[string]: ["home", "away"]
         """
+        if matchDay > (self.league.nClubs-2)*2 :
+            raise ValueError("""There is not enough games in a season.""")
+        
         games = self.league.match_day(matchDay)
 
         for game in games :
             if self.name in game :
                 return game
 
-    def game_form(self, nMatch, attack = False, defense = False, performance = False):
+    def game_form(self, nMatch, matchDay, attack = False, defense = False, performance = False):
         """
         Returns the last club performance and its opponent performance previous the given matchday.
 
@@ -38,14 +41,15 @@ class Club :
         Returns:
             dict{string: list[list]}: {"home": form(), "away": form()}
         """
-        game = self.game(self.league.matchDay)
-        home = self.league.form(game[0], nMatch, attack, defense, performance)
-        away = self.league.form(game[1], nMatch, attack, defense, performance)
+        
+        game = self.game(matchDay)
+        home = self.league.form(game[0], nMatch, matchDay, attack, defense, performance)
+        away = self.league.form(game[1], nMatch, matchDay, attack, defense, performance)
         gameForm = {game[0]: home, game[1]: away}
 
         return gameForm
     
-    def club_form(self, nMatch, attack = False, defense = False, performance = False):
+    def club_form(self, nMatch, matchDay,  attack = False, defense = False, performance = False):
         """
         Returns the last club performance previous the given matchday.
 
@@ -58,7 +62,7 @@ class Club :
         Returns:
             list[list]: form()
         """
-        return self.league.form(self.name,nMatch, attack, defense, performance)
+        return self.league.form(self.name,nMatch, matchDay, attack, defense, performance)
     
     def rank(self,matchDay):
         """
@@ -87,8 +91,8 @@ class Club :
         """
         home, away = self.game(matchDay)
         xstats = self.league.xStats_table()
-        homeRank = self.league.league_table(self.league.matchDay-1)[home]
-        awayRank = self.league.league_table(self.league.matchDay-1)[away]
+        homeRank = self.league.league_table(matchDay-1)[home]
+        awayRank = self.league.league_table(matchDay-1)[away]
 
         return [xstats[homeRank-1],xstats[awayRank-1]]
 
@@ -102,12 +106,12 @@ class Club :
             list[integer]: [home team rank, away team rank]
         """
         home, away = self.game(matchDay)
-        homeRank = self.league.league_table(self.league.matchDay-1)[home]
-        awayRank = self.league.league_table(self.league.matchDay-1)[away]
+        homeRank = self.league.league_table(matchDay-1)[home]
+        awayRank = self.league.league_table(matchDay-1)[away]
 
         return [homeRank,awayRank]
 
-    def form_confrontation(self, matchDay, nMatch):
+    def form_confrontation(self, matchDay, nMatch, attack=False, defense=False, performance=False):
         """
         Returns the form of the club and its opponent.
 
@@ -116,13 +120,13 @@ class Club :
             nMatch (integer): the number of previous games considered in order to give the past performance of a club
         
         Returns: 
-            list[list[string]]: the latest performance of the club and its opponent ("D","L","W")
+           dict{string: list[list[integer]]: the latest performance of the club and its opponent ("D","L","W")
         """
         home, away = self.game(matchDay)
-        homeForm = self.league.form(home,nMatch)
-        awayForm = self.league.form(away,nMatch)
+        homeForm = self.league.form(home,nMatch, matchDay, attack, defense, performance)
+        awayForm = self.league.form(away,nMatch, matchDay, attack, defense, performance)
 
-        return [homeForm, awayForm]
+        return {home: homeForm, away: awayForm}
 
 
     #statistical modelisation 
