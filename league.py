@@ -15,58 +15,26 @@ from club import Club
 
 class League :
     #variables written with capital letters are related to driver elements
-    def __init__(self, id_transfermarkt, tag, year, matchDay, nClubs, id_understat):
+    def __init__(self, id_transfermarkt, tag, year, nClubs, id_understat):
         """
         Arguments: 
             id_transfermarkt (string): name of the league appearing in the url of the transfermarkt website 
             id_understat (string): name of the league appearing in the url of the understat website 
             tag (string): tag of the league appearing in the url
             year (integer): year of the league season
-            matchDay (integer): matchday of the league season
             nClubs (integer): number of clubs in the league
         """
         self.id_transfermarkt = id_transfermarkt    
         self.tag = tag
         self.year = year
-        self.matchDay = matchDay
         self.nClubs = nClubs
         self.id_understat = id_understat
 
     """Methods that are not to be used directly from the main file"""
     
-    def match_result(self, game, name_club):
-        """
-        Given a club and a game, gives the result from the club's point of view or None if the club is not part of the game.
-
-        Arguments:
-            game (list[string]): ["home team", "x:y", "away team"]
-            name_club (string): name of the club concerned
-
-        Returns:
-            list[string, integer, integer]: ["W/L/D", Gs , GAs]
-            None
-        """
-        #if the club is the home team
-        if name_club == game[0] :
-            if game[1][0] > game[1][2] :
-                return ['W', int(game[1][0]), int(game[1][2])]
-            elif game[1][0] < game[1][2] :
-                return ['L', int(game[1][0]), int(game[1][2])]
-            else:
-                return ['D', int(game[1][0]), int(game[1][2])]
-            
-        #if the club is the away team
-        if name_club == game[2] :
-            if game[1][0] < game[1][2] :
-                return ['W', int(game[1][2]), int(game[1][0])]
-            elif game[1][0] > game[1][2] :
-                return ['L', int(game[1][2]), int(game[1][0])]
-            else:
-                return ['D', int(game[1][2]), int(game[1][0])]
-        else: 
-            return 
+    
         
-    def form(self, name_club, nMatch, attack = False, defense = False, performance = False):
+    def form(self, name_club, nMatch, matchDay, attack = False, defense = False, performance = False):
         """
         Returns the recent performance of a given club including attack and defense. 
 
@@ -80,12 +48,21 @@ class League :
         Returns:
             list[list]: [performance, attack, defense] data from the previous games
         """
+        if not (attack or defense or performance):
+            raise SyntaxError ("""Missing one argument: must chose at least on statistic to study from attack, defense or performance""")
+        
+        if nMatch >= matchDay :
+            raise ValueError("""There is not enough games played""")
+        
+        if matchDay > (self.nClubs-2)*2 :
+            raise ValueError("""There is not enough games in a season.""")
+        
         outcome, goals, goals_against = [], [], []
-        i = self.matchDay - 1
-        while i >= self.matchDay - nMatch and i >=  0:
+        i = matchDay - 1
+        while i >= matchDay - nMatch and i >=  0:
             resultDay = self.result_day(i)
             for match in resultDay:
-                result = self.match_result(match, name_club)
+                result = match_result(match, name_club)
                 outcome = outcome + [result[0]] if result else outcome
                 goals = goals + [result[1]] if result else goals
                 goals_against = goals_against + [result[2]] if result else goals_against
@@ -175,6 +152,14 @@ class League :
         Returns:
             dict{string:integer}: {"club": rank}
         """
+        try:
+            self.result_day(matchDay)
+        except ValueError as x:
+            if str(x) == """There is not enough games in a season.""" :
+                raise x 
+            else: 
+                raise ValueError("""Not enough games played yet.""")
+        
         #accessing the correct webpage 
         url = "https://www.transfermarkt.com/" + self.id_transfermarkt + "/spieltagtabelle/wettbewerb/" + self.tag + "?saison_id="\
               + str(self.year) + "&spieltag=" + str(matchDay)
@@ -198,6 +183,10 @@ class League :
         Returns:
            list[string]: ["home", "away"]
         """
+    
+        if matchDay > (self.nClubs-2)*2 :
+            raise ValueError("""There is not enough games in a season.""")
+        
         #accessing the correct webpage 
         url = "https://www.transfermarkt.com/" + self.id_transfermarkt + "/spieltagtabelle/wettbewerb/" + self.tag + "?saison_id=" \
               + str(self.year) + "&spieltag=" + str(matchDay)
@@ -234,6 +223,10 @@ class League :
         Returns:
            list[string]: ["home", "x:y", "away"]
         """
+
+        if matchDay > (self.nClubs-2)*2 :
+            raise ValueError("""There is not enough games in a season.""")
+        
         games = self.match_day(matchDay)
         
         #scraping the score of each game
@@ -248,9 +241,47 @@ class League :
             home , away = games[k]
             output.append([home, scores[k], away])
 
+        if not output: 
+            raise ValueError("""The match has not been played yet.""")
+
         return output
+    
 
+
+
+def match_result(game, name_club):
+        """
+        Given a club and a game, gives the result from the club's point of view or None if the club is not part of the game.
+
+        Arguments:
+            game (list[string]): ["home team", "x:y", "away team"]
+            name_club (string): name of the club concerned
+
+        Returns:
+            list[string, integer, integer]: ["W/L/D", Gs , GAs]
+            None
+        """
+        #if the club is the home team
+        if name_club == game[0] :
+            if game[1][0] > game[1][2] :
+                return ['W', int(game[1][0]), int(game[1][2])]
+            elif game[1][0] < game[1][2] :
+                return ['L', int(game[1][0]), int(game[1][2])]
+            else:
+                return ['D', int(game[1][0]), int(game[1][2])]
+            
+        #if the club is the away team
+        if name_club == game[2] :
+            if game[1][0] < game[1][2] :
+                return ['W', int(game[1][2]), int(game[1][0])]
+            elif game[1][0] > game[1][2] :
+                return ['L', int(game[1][2]), int(game[1][0])]
+            else:
+                return ['D', int(game[1][2]), int(game[1][0])]
+        else: 
+            return 
     
 
     
+
 
