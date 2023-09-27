@@ -1,4 +1,4 @@
-# Footblal_outcomes
+# Football_outcomes
 This repository uses the Selenium framework in order to scrap data from websites displaying football game scores. Given this data, forecasts outcomes according to a chosen method.
 
 This repository contains several  python files. Some methods are not yet ready to use as Understat (website) does not provide data history. Every ready-to-use methods are tested in the test.py file.  	
